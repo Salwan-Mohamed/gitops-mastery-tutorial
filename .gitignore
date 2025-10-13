@@ -1,0 +1,79 @@
+# Kubernetes
+*.kubeconfig
+.kube/
+kubeconfig
+
+# Argo CD
+argocd-initial-admin-secret.txt
+
+# Secrets
+*.secret
+*.key
+*.pem
+*.crt
+secrets/
+*.env
+.env.*
+
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+terraform.tfvars
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Kind
+kind-config-*.yaml
+
+# Logs
+*.log
+logs/
+
+# Build artifacts
+dist/
+build/
+*.zip
+*.tar.gz
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# Backup files
+*.bak
+*.backup
+
+# Node modules (if any JS tooling)
+node_modules/
+package-lock.json
+yarn.lock
+
+# Python (if any Python scripts)
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+venv/
+ENV/
+
+# Helm
+*.tgz
+charts/*/charts/
+
+# Local development
+local/
+.local/
+dev-notes.md
