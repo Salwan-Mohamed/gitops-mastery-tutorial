@@ -1,0 +1,43 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: my-first-gitops-app
+  namespace: argocd
+  # Finalizer ensures cascade delete
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  # The project the application belongs to
+  project: default
+
+  # Source of the application manifests
+  source:
+    repoURL: https://github.com/Salwan-Mohamed/gitops-mastery-tutorial.git
+    targetRevision: HEAD
+    path: part-01-gitops-unveiled/getting-started/first-app/k8s
+
+  # Destination cluster and namespace
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
+
+  # Sync policy
+  syncPolicy:
+    automated:
+      # Automatically sync when differences detected
+      prune: true       # Delete resources that are no longer defined in Git
+      selfHeal: true    # Sync when cluster state differs from Git (self-healing)
+      allowEmpty: false # Don't sync if source is empty
+    
+    # Sync options
+    syncOptions:
+      - CreateNamespace=true  # Create namespace if it doesn't exist
+      - PruneLast=true        # Prune resources as last step
+    
+    # Retry strategy
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
