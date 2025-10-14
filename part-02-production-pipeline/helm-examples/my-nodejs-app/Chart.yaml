@@ -1,0 +1,16 @@
+apiVersion: v2
+name: my-nodejs-app
+description: A production-ready Node.js application
+type: application
+version: 1.0.0      # Chart version
+appVersion: "2.3.1" # Application version
+maintainers:
+  - name: GitOps Mastery Team
+    email: devops@gitops-mastery.com
+keywords:
+  - nodejs
+  - web
+  - api
+home: https://github.com/Salwan-Mohamed/gitops-mastery-tutorial
+sources:
+  - https://github.com/Salwan-Mohamed/gitops-mastery-tutorial

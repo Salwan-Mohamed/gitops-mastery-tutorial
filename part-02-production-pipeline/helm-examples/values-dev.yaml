@@ -1,0 +1,44 @@
+# Development environment values
+replicaCount: 1
+
+image:
+  repository: mycompany/nodejs-app
+  pullPolicy: Always
+  tag: "dev-latest"
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 3000
+
+resources:
+  limits:
+    cpu: 200m
+    memory: 256Mi
+  requests:
+    cpu: 50m
+    memory: 128Mi
+
+env:
+  NODE_ENV: development
+  LOG_LEVEL: debug
+  PORT: "3000"
+
+config:
+  DATABASE_HOST: dev-db.example.com
+  DATABASE_PORT: "5432"
+  DATABASE_NAME: myapp_dev
+
+autoscaling:
+  enabled: false
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+  hosts:
+    - host: dev.my-nodejs-app.local
+      paths:
+        - path: /
+          pathType: Prefix
