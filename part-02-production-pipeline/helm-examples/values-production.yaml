@@ -1,0 +1,77 @@
+# Production environment values
+replicaCount: 5
+
+image:
+  repository: mycompany/nodejs-app
+  pullPolicy: IfNotPresent
+  tag: "v2.3.1"
+
+service:
+  type: LoadBalancer
+  port: 443
+  targetPort: 3000
+
+resources:
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+  requests:
+    cpu: 250m
+    memory: 512Mi
+
+env:
+  NODE_ENV: production
+  LOG_LEVEL: warn
+  PORT: "3000"
+
+config:
+  DATABASE_HOST: prod-db.example.com
+  DATABASE_PORT: "5432"
+  DATABASE_NAME: myapp_production
+
+autoscaling:
+  enabled: true
+  minReplicas: 5
+  maxReplicas: 20
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "3000"
+  prometheus.io/path: "/metrics"
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+  hosts:
+    - host: my-nodejs-app.com
+      paths:
+        - path: /
+          pathType: Prefix
+    - host: www.my-nodejs-app.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: production-tls
+      hosts:
+        - my-nodejs-app.com
+        - www.my-nodejs-app.com
+
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values:
+                  - my-nodejs-app
+          topologyKey: kubernetes.io/hostname

@@ -1,0 +1,48 @@
+# Staging environment values
+replicaCount: 2
+
+image:
+  repository: mycompany/nodejs-app
+  pullPolicy: IfNotPresent
+  tag: "staging-v2.3.1"
+
+service:
+  type: LoadBalancer
+  port: 80
+  targetPort: 3000
+
+resources:
+  limits:
+    cpu: 400m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 256Mi
+
+env:
+  NODE_ENV: staging
+  LOG_LEVEL: info
+  PORT: "3000"
+
+config:
+  DATABASE_HOST: staging-db.example.com
+  DATABASE_PORT: "5432"
+  DATABASE_NAME: myapp_staging
+
+autoscaling:
+  enabled: false
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-staging
+  hosts:
+    - host: staging.my-nodejs-app.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: staging-tls
+      hosts:
+        - staging.my-nodejs-app.com
