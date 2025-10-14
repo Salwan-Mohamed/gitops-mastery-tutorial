@@ -1,0 +1,133 @@
+# Default values for my-nodejs-app
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# How many copies of your app to run
+replicaCount: 3
+
+# Docker image details
+image:
+  repository: mycompany/nodejs-app
+  pullPolicy: IfNotPresent
+  tag: "2.3.1"
+
+# Image pull secrets (if using private registry)
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+# Service account
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+# Pod annotations
+podAnnotations: {}
+
+# Pod security context
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  fsGroup: 2000
+
+# Container security context
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+    - ALL
+
+# Service configuration
+service:
+  type: LoadBalancer
+  port: 80
+  targetPort: 3000
+
+# Ingress configuration
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # cert-manager.io/cluster-issuer: letsencrypt-prod
+  hosts:
+    - host: my-nodejs-app.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+  #  - secretName: my-nodejs-app-tls
+  #    hosts:
+  #      - my-nodejs-app.local
+
+# Resource limits (prevent one app from hogging everything)
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 256Mi
+
+# Autoscaling
+autoscaling:
+  enabled: false
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
+
+# Node selector
+nodeSelector: {}
+
+# Tolerations
+tolerations: []
+
+# Affinity
+affinity: {}
+
+# Environment-specific settings
+env:
+  NODE_ENV: production
+  LOG_LEVEL: info
+  PORT: "3000"
+
+# Database configuration (stored in ConfigMap)
+config:
+  DATABASE_HOST: db.example.com
+  DATABASE_PORT: "5432"
+  DATABASE_NAME: myapp
+
+# Secrets (these should be provided via separate values files or external secrets)
+secrets:
+  DATABASE_PASSWORD: ""
+  API_KEY: ""
+
+# Health checks
+livenessProbe:
+  httpGet:
+    path: /health
+    port: 3000
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /ready
+    port: 3000
+  initialDelaySeconds: 5
+  periodSeconds: 5
+  timeoutSeconds: 3
+  failureThreshold: 3
+
+# Persistent storage
+persistence:
+  enabled: false
+  storageClass: ""
+  accessMode: ReadWriteOnce
+  size: 1Gi
+  mountPath: /data
