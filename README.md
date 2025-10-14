@@ -20,12 +20,16 @@ This is the official code repository for the **"GitOps Mastery"** tutorial serie
 
 ## 🎯 What You'll Learn
 
-### Part 1: GitOps Unveiled
+### Part 1: GitOps Unveiled ✅ COMPLETE
 ✅ What GitOps is and why it matters  
 ✅ Evolution from traditional IT to GitOps  
 ✅ Core principles and benefits  
 ✅ Integration with Kubernetes  
 ✅ Your first GitOps deployment with Argo CD  
+✅ Real-world case studies and success stories  
+✅ Best practices and common pitfalls  
+
+**📖 [Read the full article](./part-01-gitops-unveiled/article.md)**
 
 ### Part 2: Building Production-Ready Pipelines (Coming Soon)
 🔜 Advanced Argo CD and Flux CD configurations  
@@ -53,13 +57,13 @@ This is the official code repository for the **"GitOps Mastery"** tutorial serie
 
 ## 📖 Tutorial Articles
 
-| Part | Title | Article Link | Code |
-|------|-------|--------------|------|
-| 1 | GitOps Unveiled: Why Your Infrastructure Deserves the Git Treatment | [Read on Medium](#) | [part-01/](./part-01-gitops-unveiled/) |
-| 2 | Building Your First Production-Ready GitOps Pipeline | Coming Soon | [part-02/](./part-02-production-pipeline/) |
-| 3 | Advanced GitOps Patterns and Practices | Coming Soon | [part-03/](./part-03-advanced-patterns/) |
-| 4 | Scaling GitOps in Enterprise | Coming Soon | [part-04/](./part-04-enterprise-scaling/) |
-| 5 | GitOps Troubleshooting and Operations | Coming Soon | [part-05/](./part-05-operations/) |
+| Part | Title | Status | Article | Code |
+|------|-------|--------|---------|------|
+| 1 | GitOps Unveiled: Why Your Infrastructure Deserves the Git Treatment | ✅ **Complete** | [Read Article](./part-01-gitops-unveiled/article.md) | [View Code](./part-01-gitops-unveiled/) |
+| 2 | Building Your First Production-Ready GitOps Pipeline | 🚧 In Progress | Coming Soon | [part-02/](./part-02-production-pipeline/) |
+| 3 | Advanced GitOps Patterns and Practices | 📋 Planned | Coming Soon | [part-03/](./part-03-advanced-patterns/) |
+| 4 | Scaling GitOps in Enterprise | 📋 Planned | Coming Soon | [part-04/](./part-04-enterprise-scaling/) |
+| 5 | GitOps Troubleshooting and Operations | 📋 Planned | Coming Soon | [part-05/](./part-05-operations/) |
 
 ## 🗂️ Repository Structure
 
@@ -67,6 +71,7 @@ This is the official code repository for the **"GitOps Mastery"** tutorial serie
 gitops-mastery-tutorial/
 │
 ├── part-01-gitops-unveiled/
+│   ├── article.md                    # ✅ Full article content
 │   ├── README.md
 │   ├── getting-started/
 │   │   ├── kind-cluster/
@@ -218,14 +223,14 @@ This repository includes complete, production-ready examples:
 ## 📝 How to Use This Repository
 
 ### For Tutorial Readers
-1. Read the Medium article for concepts and explanations
+1. Read the article in each part's directory (e.g., `part-01-gitops-unveiled/article.md`)
 2. Clone this repository for hands-on practice
-3. Follow the step-by-step guides in each part
+3. Follow the step-by-step guides
 4. Experiment with the examples
 5. Adapt the patterns to your use case
 
 ### For Self-Learners
-1. Start with `part-01-gitops-unveiled/README.md`
+1. Start with [Part 1 article](./part-01-gitops-unveiled/article.md)
 2. Work through examples in order
 3. Complete the hands-on exercises
 4. Review the case studies
@@ -257,7 +262,7 @@ Check our [Troubleshooting Guide](./resources/troubleshooting-guides/common-issu
 ### Ask Questions
 - **GitHub Issues**: For bugs and feature requests
 - **GitHub Discussions**: For questions and community support
-- **Medium Comments**: On the tutorial articles
+- **Article Comments**: On the tutorial articles in each part directory
 
 ### Community
 - Star ⭐ this repository to show support
@@ -292,11 +297,11 @@ Real companies using patterns from this tutorial:
 
 ## 📊 Project Status
 
-- [x] Part 1: GitOps Unveiled - **Published** ✅
-- [ ] Part 2: Production-Ready Pipelines - **In Progress** 🚧
-- [ ] Part 3: Advanced Patterns - **Planned** 📋
-- [ ] Part 4: Enterprise Scaling - **Planned** 📋
-- [ ] Part 5: Operations - **Planned** 📋
+- [x] Part 1: GitOps Unveiled - **✅ PUBLISHED** 
+- [ ] Part 2: Production-Ready Pipelines - **🚧 In Progress**
+- [ ] Part 3: Advanced Patterns - **📋 Planned**
+- [ ] Part 4: Enterprise Scaling - **📋 Planned**
+- [ ] Part 5: Operations - **📋 Planned**
 
 ## 📄 License
 
@@ -322,14 +327,14 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 If this tutorial helped you, please consider:
 
 - ⭐ Starring this repository
-- 👏 Clapping on the Medium articles
+- 👏 Clapping on the articles
 - 🔄 Sharing with your network
 - 📝 Writing about your experience
 - 🤝 Contributing improvements
 
 ---
 
-**Ready to start your GitOps journey?** Head over to [Part 1](./part-01-gitops-unveiled/) to begin! 🚀
+**Ready to start your GitOps journey?** Head over to [Part 1 Article](./part-01-gitops-unveiled/article.md) to begin! 🚀
 
 ---
 
