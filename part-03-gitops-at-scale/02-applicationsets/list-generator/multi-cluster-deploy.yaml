@@ -1,0 +1,48 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: webapp-multi-cluster
+  namespace: argocd
+spec:
+  generators:
+  - list:
+      elements:
+      - cluster: us-east-1
+        url: https://kubernetes.default.svc
+        env: production
+        replicas: "5"
+      - cluster: eu-west-1
+        url: https://k8s-eu-west-1.example.com
+        env: production
+        replicas: "3"
+      - cluster: ap-south-1
+        url: https://k8s-ap-south-1.example.com
+        env: production
+        replicas: "3"
+  template:
+    metadata:
+      name: '{{cluster}}-webapp'
+      labels:
+        cluster: '{{cluster}}'
+        environment: '{{env}}'
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/Salwan-Mohamed/gitops-mastery-tutorial
+        targetRevision: main
+        path: common/sample-apps/webapp
+        helm:
+          parameters:
+          - name: replicaCount
+            value: '{{replicas}}'
+          - name: environment
+            value: '{{env}}'
+      destination:
+        server: '{{url}}'
+        namespace: webapp
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+        - CreateNamespace=true

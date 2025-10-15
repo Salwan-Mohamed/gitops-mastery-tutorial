@@ -1,0 +1,32 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: cluster-addons
+  namespace: argocd
+spec:
+  generators:
+  - clusters:
+      selector:
+        matchLabels:
+          env: production  # Only production clusters
+  template:
+    metadata:
+      name: '{{name}}-monitoring'
+      labels:
+        environment: '{{metadata.labels.env}}'
+        managed-by: applicationset
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/Salwan-Mohamed/gitops-mastery-tutorial
+        targetRevision: main
+        path: common/cluster-addons/monitoring
+      destination:
+        server: '{{server}}'
+        namespace: monitoring
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+        - CreateNamespace=true
