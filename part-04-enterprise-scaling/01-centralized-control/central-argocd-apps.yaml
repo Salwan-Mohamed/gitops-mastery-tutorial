@@ -1,0 +1,67 @@
+# Centralized Argo CD Applications managing multiple clusters
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: dev-cluster-apps
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/your-org/gitops-repo
+    targetRevision: HEAD
+    path: clusters/dev
+  destination:
+    server: https://dev-cluster.example.com
+    namespace: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: staging-cluster-apps
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/your-org/gitops-repo
+    targetRevision: HEAD
+    path: clusters/staging
+  destination:
+    server: https://staging-cluster.example.com
+    namespace: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: prod-cluster-apps
+  namespace: argocd
+spec:
+  project: production
+  source:
+    repoURL: https://github.com/your-org/gitops-repo
+    targetRevision: HEAD
+    path: clusters/production
+  destination:
+    server: https://prod-cluster.example.com
+    namespace: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: false  # Manual sync for production
+    syncOptions:
+      - CreateNamespace=true
+  # Require manual approval for production
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
