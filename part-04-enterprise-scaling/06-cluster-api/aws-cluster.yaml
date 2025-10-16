@@ -1,0 +1,81 @@
+# Cluster API definition for AWS EKS cluster
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: Cluster
+metadata:
+  name: prod-us-east-1
+  namespace: default
+spec:
+  clusterNetwork:
+    pods:
+      cidrBlocks:
+      - 192.168.0.0/16
+    services:
+      cidrBlocks:
+      - 10.96.0.0/12
+  controlPlaneRef:
+    apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+    kind: AWSManagedControlPlane
+    name: prod-us-east-1-control-plane
+  infrastructureRef:
+    apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+    kind: AWSManagedCluster
+    name: prod-us-east-1
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: AWSManagedCluster
+metadata:
+  name: prod-us-east-1
+  namespace: default
+spec:
+  region: us-east-1
+  sshKeyName: prod-key
+---
+apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+kind: AWSManagedControlPlane
+metadata:
+  name: prod-us-east-1-control-plane
+  namespace: default
+spec:
+  region: us-east-1
+  version: v1.28.0
+  networking:
+    vpcCidr: 10.0.0.0/16
+  iamAuthenticatorConfig:
+    mapRoles:
+    - rolearn: arn:aws:iam::123456789012:role/KubernetesAdmin
+      username: kubernetes-admin
+      groups:
+      - system:masters
+---
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: MachinePool
+metadata:
+  name: prod-us-east-1-pool-0
+  namespace: default
+spec:
+  clusterName: prod-us-east-1
+  replicas: 3
+  template:
+    spec:
+      clusterName: prod-us-east-1
+      bootstrap:
+        dataSecretName: ""
+      infrastructureRef:
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+        kind: AWSManagedMachinePool
+        name: prod-us-east-1-pool-0
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: AWSManagedMachinePool
+metadata:
+  name: prod-us-east-1-pool-0
+  namespace: default
+spec:
+  instanceType: t3.large
+  scaling:
+    minSize: 3
+    maxSize: 10
+  diskSize: 100
+  labels:
+    environment: production
+    region: us-east-1
