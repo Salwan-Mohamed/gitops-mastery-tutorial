@@ -1,0 +1,74 @@
+# Argo CD instance for US region
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: argocd-us
+  labels:
+    region: us
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: us-east-cluster
+  namespace: argocd-us
+spec:
+  project: us-region
+  source:
+    repoURL: https://github.com/your-org/infrastructure
+    targetRevision: HEAD
+    path: regions/us/us-east-1
+  destination:
+    server: https://us-east-1.example.com
+    namespace: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: us-west-cluster
+  namespace: argocd-us
+spec:
+  project: us-region
+  source:
+    repoURL: https://github.com/your-org/infrastructure
+    targetRevision: HEAD
+    path: regions/us/us-west-2
+  destination:
+    server: https://us-west-2.example.com
+    namespace: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+---
+# Argo CD instance for EU region (separate namespace for GDPR compliance)
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: argocd-eu
+  labels:
+    region: eu
+  annotations:
+    compliance: "gdpr"
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: eu-west-cluster
+  namespace: argocd-eu
+spec:
+  project: eu-region
+  source:
+    repoURL: https://github.com/your-org/infrastructure
+    targetRevision: HEAD
+    path: regions/eu/eu-west-1
+  destination:
+    server: https://eu-west-1.example.com
+    namespace: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

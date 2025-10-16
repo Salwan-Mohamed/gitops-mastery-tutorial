@@ -1,0 +1,112 @@
+# Fleet Argo CD - Application Management (runs in each cluster)
+
+# Application Team 1 - E-commerce
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ecommerce-frontend
+  namespace: argocd-fleet
+spec:
+  project: ecommerce
+  source:
+    repoURL: https://github.com/your-org/ecommerce-frontend
+    targetRevision: HEAD
+    path: k8s
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: ecommerce
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ecommerce-backend
+  namespace: argocd-fleet
+spec:
+  project: ecommerce
+  source:
+    repoURL: https://github.com/your-org/ecommerce-backend
+    targetRevision: HEAD
+    path: k8s
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: ecommerce
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+---
+# Application Team 2 - Mobile API
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: mobile-api
+  namespace: argocd-fleet
+spec:
+  project: mobile
+  source:
+    repoURL: https://github.com/your-org/mobile-api
+    targetRevision: HEAD
+    path: k8s
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: mobile
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+---
+# AppProject for E-commerce team
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: ecommerce
+  namespace: argocd-fleet
+spec:
+  description: E-commerce team applications
+  sourceRepos:
+  - 'https://github.com/your-org/ecommerce-*'
+  destinations:
+  - namespace: 'ecommerce*'
+    server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+  - group: ''
+    kind: Namespace
+  roles:
+  - name: developer
+    policies:
+    - p, proj:ecommerce:developer, applications, get, ecommerce/*, allow
+    - p, proj:ecommerce:developer, applications, sync, ecommerce/*, allow
+    groups:
+    - ecommerce-devs
+---
+# AppProject for Mobile team
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: mobile
+  namespace: argocd-fleet
+spec:
+  description: Mobile team applications
+  sourceRepos:
+  - 'https://github.com/your-org/mobile-*'
+  destinations:
+  - namespace: 'mobile*'
+    server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+  - group: ''
+    kind: Namespace
+  roles:
+  - name: developer
+    policies:
+    - p, proj:mobile:developer, applications, get, mobile/*, allow
+    - p, proj:mobile:developer, applications, sync, mobile/*, allow
+    groups:
+    - mobile-devs

@@ -1,0 +1,56 @@
+# Argo CD Application for managing Cluster API resources
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cluster-management
+  namespace: argocd
+spec:
+  project: infrastructure
+  source:
+    repoURL: https://github.com/your-org/cluster-definitions
+    targetRevision: HEAD
+    path: clusters
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
+  syncPolicy:
+    automated:
+      prune: false  # Don't auto-delete clusters!
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+  # Sync waves for proper ordering
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: infrastructure
+  namespace: argocd
+spec:
+  description: Infrastructure and cluster management
+  sourceRepos:
+  - 'https://github.com/your-org/cluster-definitions'
+  destinations:
+  - namespace: '*'
+    server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+  - group: 'cluster.x-k8s.io'
+    kind: '*'
+  - group: 'infrastructure.cluster.x-k8s.io'
+    kind: '*'
+  - group: 'controlplane.cluster.x-k8s.io'
+    kind: '*'
+  roles:
+  - name: platform-admin
+    policies:
+    - p, proj:infrastructure:platform-admin, applications, *, infrastructure/*, allow
+    groups:
+    - platform-admins
+  - name: platform-viewer
+    policies:
+    - p, proj:infrastructure:platform-viewer, applications, get, infrastructure/*, allow
+    groups:
+    - platform-team

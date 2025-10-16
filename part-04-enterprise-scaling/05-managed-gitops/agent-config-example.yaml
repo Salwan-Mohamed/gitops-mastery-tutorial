@@ -1,0 +1,87 @@
+# Example agent configuration for managed GitOps
+# This would be provided by your managed GitOps provider
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: akuity
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: akuity-agent
+  namespace: akuity
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: akuity-agent
+rules:
+- apiGroups: ['*']
+  resources: ['*']
+  verbs: ['get', 'list', 'watch']
+- apiGroups: ['*']
+  resources: ['*']
+  verbs: ['create', 'update', 'patch', 'delete']
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: akuity-agent
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: akuity-agent
+subjects:
+- kind: ServiceAccount
+  name: akuity-agent
+  namespace: akuity
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: akuity-agent-secret
+  namespace: akuity
+type: Opaque
+stringData:
+  # Provided by Akuity Platform
+  agent-token: "your-agent-token-here"
+  api-url: "https://api.akuity.io"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: akuity-agent
+  namespace: akuity
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: akuity-agent
+  template:
+    metadata:
+      labels:
+        app: akuity-agent
+    spec:
+      serviceAccountName: akuity-agent
+      containers:
+      - name: agent
+        image: akuity/agent:latest
+        env:
+        - name: AGENT_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: akuity-agent-secret
+              key: agent-token
+        - name: API_URL
+          valueFrom:
+            secretKeyRef:
+              name: akuity-agent-secret
+              key: api-url
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"

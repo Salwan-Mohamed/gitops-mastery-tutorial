@@ -1,0 +1,42 @@
+# Self-managed Argo CD application
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cluster-infrastructure
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/your-org/cluster-config
+    targetRevision: HEAD
+    path: infrastructure
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cluster-applications
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/your-org/cluster-config
+    targetRevision: HEAD
+    path: applications
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

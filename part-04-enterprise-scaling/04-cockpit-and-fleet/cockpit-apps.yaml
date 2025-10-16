@@ -1,0 +1,125 @@
+# Cockpit Argo CD - Platform Infrastructure Management
+
+# Ingress Controller Application
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ingress-nginx-cluster1
+  namespace: argocd-cockpit
+spec:
+  project: platform
+  source:
+    repoURL: https://github.com/kubernetes/ingress-nginx
+    targetRevision: main
+    path: deploy/static/provider/cloud
+  destination:
+    server: https://cluster1.example.com
+    namespace: ingress-nginx
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+---
+# Certificate Manager Application
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cert-manager-cluster1
+  namespace: argocd-cockpit
+spec:
+  project: platform
+  source:
+    repoURL: https://charts.jetstack.io
+    chart: cert-manager
+    targetRevision: v1.13.0
+    helm:
+      parameters:
+      - name: installCRDs
+        value: "true"
+  destination:
+    server: https://cluster1.example.com
+    namespace: cert-manager
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+---
+# Monitoring Stack Application
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: monitoring-cluster1
+  namespace: argocd-cockpit
+spec:
+  project: platform
+  source:
+    repoURL: https://github.com/prometheus-operator/kube-prometheus
+    targetRevision: main
+    path: manifests
+  destination:
+    server: https://cluster1.example.com
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+---
+# Network Policies Application
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: network-policies-cluster1
+  namespace: argocd-cockpit
+spec:
+  project: platform
+  source:
+    repoURL: https://github.com/your-org/platform-config
+    targetRevision: HEAD
+    path: network-policies
+  destination:
+    server: https://cluster1.example.com
+    namespace: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+---
+# ApplicationSet to deploy platform components to all clusters
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: platform-components
+  namespace: argocd-cockpit
+spec:
+  generators:
+  - list:
+      elements:
+      - cluster: cluster1
+        url: https://cluster1.example.com
+      - cluster: cluster2
+        url: https://cluster2.example.com
+      - cluster: cluster3
+        url: https://cluster3.example.com
+  template:
+    metadata:
+      name: '{{cluster}}-platform'
+    spec:
+      project: platform
+      source:
+        repoURL: https://github.com/your-org/platform-config
+        targetRevision: HEAD
+        path: 'platform/{{cluster}}'
+      destination:
+        server: '{{url}}'
+        namespace: platform
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true

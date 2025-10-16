@@ -1,0 +1,65 @@
+# Argo CD instance for E-commerce team
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: argocd-ecommerce
+---
+# Install Argo CD in team namespace
+# kubectl apply -n argocd-ecommerce -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ecommerce-dev
+  namespace: argocd-ecommerce
+spec:
+  project: ecommerce
+  source:
+    repoURL: https://github.com/your-org/ecommerce-repo
+    targetRevision: HEAD
+    path: environments/dev
+  destination:
+    server: https://ecommerce-dev.example.com
+    namespace: ecommerce
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ecommerce-staging
+  namespace: argocd-ecommerce
+spec:
+  project: ecommerce
+  source:
+    repoURL: https://github.com/your-org/ecommerce-repo
+    targetRevision: HEAD
+    path: environments/staging
+  destination:
+    server: https://ecommerce-staging.example.com
+    namespace: ecommerce
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ecommerce-production
+  namespace: argocd-ecommerce
+spec:
+  project: ecommerce
+  source:
+    repoURL: https://github.com/your-org/ecommerce-repo
+    targetRevision: HEAD
+    path: environments/production
+  destination:
+    server: https://ecommerce-prod.example.com
+    namespace: ecommerce
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: false  # Manual sync for production
