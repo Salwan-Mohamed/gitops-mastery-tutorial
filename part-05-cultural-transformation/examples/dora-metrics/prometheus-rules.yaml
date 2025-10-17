@@ -1,0 +1,134 @@
+# Prometheus Rules for DORA Metrics
+# Deploy these to track the four key DevOps metrics
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dora-metrics-rules
+  namespace: monitoring
+data:
+  dora-metrics.yaml: |
+    groups:
+    - name: dora_metrics
+      interval: 30s
+      rules:
+      
+      # Deployment Frequency
+      # Tracks how often deployments occur
+      - record: dora:deployment_frequency:rate1h
+        expr: rate(argocd_app_sync_total{phase="Succeeded"}[1h])
+      
+      - record: dora:deployment_frequency:rate1d
+        expr: rate(argocd_app_sync_total{phase="Succeeded"}[1d])
+      
+      - record: dora:deployment_frequency:count1d
+        expr: increase(argocd_app_sync_total{phase="Succeeded"}[1d])
+      
+      # Lead Time for Changes
+      # Time from commit to deployment
+      - record: dora:lead_time:p50
+        expr: histogram_quantile(0.50, rate(gitops_commit_to_deploy_seconds_bucket[1h]))
+      
+      - record: dora:lead_time:p95
+        expr: histogram_quantile(0.95, rate(gitops_commit_to_deploy_seconds_bucket[1h]))
+      
+      - record: dora:lead_time:p99
+        expr: histogram_quantile(0.99, rate(gitops_commit_to_deploy_seconds_bucket[1h]))
+      
+      # Change Failure Rate
+      # Percentage of deployments that fail
+      - record: dora:change_failure_rate:ratio
+        expr: |
+          rate(argocd_app_sync_total{phase="Failed"}[1d]) / 
+          rate(argocd_app_sync_total[1d])
+      
+      - record: dora:change_failure_rate:percentage
+        expr: |
+          (rate(argocd_app_sync_total{phase="Failed"}[1d]) / 
+          rate(argocd_app_sync_total[1d])) * 100
+      
+      # Mean Time to Recovery (MTTR)
+      # Average time to recover from failures
+      - record: dora:mttr:avg
+        expr: avg(time_to_restore_service_seconds)
+      
+      - record: dora:mttr:p95
+        expr: histogram_quantile(0.95, rate(time_to_restore_service_seconds_bucket[1h]))
+      
+      # Additional helpful metrics
+      - record: dora:sync_success_rate
+        expr: |
+          rate(argocd_app_sync_total{phase="Succeeded"}[1h]) /
+          rate(argocd_app_sync_total[1h])
+      
+      - record: dora:apps_out_of_sync
+        expr: count(argocd_app_info{sync_status="OutOfSync"})
+      
+      - record: dora:apps_degraded
+        expr: count(argocd_app_info{health_status="Degraded"})
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: dora-metrics-alerts
+  namespace: monitoring
+spec:
+  groups:
+  - name: dora_alerts
+    interval: 1m
+    rules:
+    
+    # Alert when deployment frequency drops
+    - alert: LowDeploymentFrequency
+      expr: dora:deployment_frequency:count1d < 5
+      for: 1d
+      labels:
+        severity: warning
+        category: dora
+      annotations:
+        summary: "Deployment frequency is low"
+        description: "Only {{ $value }} deployments in the last 24 hours. Target is >10/day."
+    
+    # Alert when lead time is high
+    - alert: HighLeadTime
+      expr: dora:lead_time:p95 > 3600  # >1 hour
+      for: 2h
+      labels:
+        severity: warning
+        category: dora
+      annotations:
+        summary: "Lead time for changes is high"
+        description: "P95 lead time is {{ $value }}s. Target is <900s (15 minutes)."
+    
+    # Alert when change failure rate is high
+    - alert: HighChangeFailureRate
+      expr: dora:change_failure_rate:percentage > 15
+      for: 1h
+      labels:
+        severity: critical
+        category: dora
+      annotations:
+        summary: "Change failure rate is high"
+        description: "{{ $value }}% of deployments are failing. Target is <5%."
+    
+    # Alert when MTTR is high
+    - alert: HighMTTR
+      expr: dora:mttr:avg > 1800  # >30 minutes
+      for: 1h
+      labels:
+        severity: warning
+        category: dora
+      annotations:
+        summary: "Mean time to recovery is high"
+        description: "Average MTTR is {{ $value }}s. Target is <600s (10 minutes)."
+    
+    # Alert when apps are out of sync
+    - alert: AppsOutOfSync
+      expr: dora:apps_out_of_sync > 3
+      for: 10m
+      labels:
+        severity: warning
+        category: gitops
+      annotations:
+        summary: "Multiple applications out of sync"
+        description: "{{ $value }} applications are out of sync with Git."
