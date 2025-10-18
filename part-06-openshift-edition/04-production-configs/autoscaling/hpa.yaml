@@ -1,0 +1,46 @@
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: weather-app-hpa
+  namespace: gitops-deployments
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: my-weather-app
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70  # Scale when avg CPU > 70%
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80  # Scale when avg memory > 80%
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300  # Wait 5 min before scaling down
+      policies:
+      - type: Percent
+        value: 50  # Scale down max 50% per minute
+        periodSeconds: 60
+      - type: Pods
+        value: 2   # Scale down max 2 pods per minute
+        periodSeconds: 60
+      selectPolicy: Min  # Use the policy that scales down the slowest
+    scaleUp:
+      stabilizationWindowSeconds: 0  # Scale up immediately
+      policies:
+      - type: Percent
+        value: 100  # Double pods every 15 seconds if needed
+        periodSeconds: 15
+      - type: Pods
+        value: 4    # Add max 4 pods every 15 seconds
+        periodSeconds: 15
+      selectPolicy: Max  # Use the policy that scales up the fastest

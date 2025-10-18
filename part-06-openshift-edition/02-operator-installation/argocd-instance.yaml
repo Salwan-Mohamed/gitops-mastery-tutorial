@@ -1,0 +1,105 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ArgoCD
+metadata:
+  name: argocd-demo
+  namespace: gitops-deployments
+spec:
+  server:
+    route:
+      enabled: true
+      tls:
+        termination: reencrypt
+        insecureEdgeTerminationPolicy: Redirect
+  
+  # Application controller configuration
+  controller:
+    resources:
+      limits:
+        cpu: '2'
+        memory: 2Gi
+      requests:
+        cpu: 250m
+        memory: 1Gi
+    processors:
+      operation: 10
+      status: 20
+  
+  # Repository server configuration
+  repo:
+    resources:
+      limits:
+        cpu: '1'
+        memory: 1Gi
+      requests:
+        cpu: 250m
+        memory: 256Mi
+  
+  # Redis configuration
+  redis:
+    resources:
+      limits:
+        cpu: 500m
+        memory: 256Mi
+      requests:
+        cpu: 250m
+        memory: 128Mi
+  
+  # Server/API configuration
+  server:
+    autoscale:
+      enabled: false
+    grpc:
+      ingress:
+        enabled: false
+    ingress:
+      enabled: false
+    resources:
+      limits:
+        cpu: 500m
+        memory: 256Mi
+      requests:
+        cpu: 125m
+        memory: 128Mi
+    route:
+      enabled: true
+      tls:
+        termination: reencrypt
+        insecureEdgeTerminationPolicy: Redirect
+    service:
+      type: ''
+  
+  # ApplicationSet controller
+  applicationSet:
+    resources:
+      limits:
+        cpu: '2'
+        memory: 1Gi
+      requests:
+        cpu: 250m
+        memory: 512Mi
+  
+  # RBAC configuration
+  rbac:
+    defaultPolicy: 'role:readonly'
+    policy: |
+      g, system:cluster-admins, role:admin
+      g, cluster-admins, role:admin
+    scopes: '[groups]'
+  
+  # SSO Configuration (optional - commented out)
+  # sso:
+  #   provider: dex
+  #   dex:
+  #     openShiftOAuth: true
+  #     resources:
+  #       limits:
+  #         cpu: 500m
+  #         memory: 256Mi
+  #       requests:
+  #         cpu: 250m
+  #         memory: 128Mi
+
+  # HA configuration (for production)
+  ha:
+    enabled: false
+    # Set to true for production with multiple replicas

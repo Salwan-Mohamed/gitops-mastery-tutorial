@@ -1,0 +1,34 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: weather-app
+  namespace: gitops-deployments
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: 'https://github.com/Salwan-Mohamed/gitops-mastery-tutorial.git'
+    targetRevision: part-06-openshift-edition
+    path: part-06-openshift-edition/03-weather-app/deployment/base
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: gitops-deployments
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: false
+    syncOptions:
+      - CreateNamespace=true
+      - ApplyOutOfSyncOnly=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+  info:
+    - name: 'Description'
+      value: 'Weather application deployed via GitOps'
+    - name: 'Environment'
+      value: 'Demo/Tutorial'

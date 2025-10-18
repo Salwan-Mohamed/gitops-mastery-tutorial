@@ -1,0 +1,23 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: weather-app-pdb
+  namespace: gitops-deployments
+spec:
+  minAvailable: 3  # Always keep at least 3 pods running
+  selector:
+    matchLabels:
+      app: weather
+  unhealthyPodEvictionPolicy: AlwaysAllow
+---
+# Alternative: maxUnavailable approach
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: weather-app-pdb-maxunavailable
+  namespace: gitops-deployments
+spec:
+  maxUnavailable: 1  # Only disrupt 1 pod at a time
+  selector:
+    matchLabels:
+      app: weather
